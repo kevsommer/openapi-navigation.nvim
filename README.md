@@ -22,7 +22,7 @@ Built for Elixir projects using `elixir/openapi.json`.
 
 ```lua
 {
-  "your-user/openapi-navigation.nvim",
+  "kevsommer/openapi-navigation.nvim",
   opts = {},
 }
 ```
@@ -31,7 +31,7 @@ With custom keymaps:
 
 ```lua
 {
-  "your-user/openapi-navigation.nvim",
+  "kevsommer/openapi-navigation.nvim",
   opts = {
     key = "<leader>so",        -- default: <leader>so
     service_key = "gs",        -- default: gs (buffer-local in .ex files)
