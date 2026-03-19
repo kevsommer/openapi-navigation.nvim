@@ -224,13 +224,51 @@ function M.pick()
   end
 end
 
+--- Jump to first Service.method() call in current function and go to definition
+local function goto_service_method()
+  local save_pos = vim.api.nvim_win_get_cursor(0)
+  local fname = vim.api.nvim_buf_get_name(0)
+  if not fname:match '%.ex$' then
+    vim.notify('Not an .ex file', vim.log.levels.WARN)
+    return
+  end
+
+  local func_start = vim.fn.search([[\<\(def\|defp\)\s]], 'bnW')
+  if func_start == 0 then
+    func_start = save_pos[1]
+  end
+
+  local func_end = vim.fn.search([[^\s*end\>]], 'nW')
+  if func_end == 0 then
+    func_end = vim.api.nvim_buf_line_count(0)
+  end
+
+  vim.api.nvim_win_set_cursor(0, { func_start, 0 })
+  local found = vim.fn.search([[\w\+Service\.\zs\w\+\ze(]], 'W', func_end)
+
+  if found > 0 then
+    vim.lsp.buf.definition()
+  else
+    vim.api.nvim_win_set_cursor(0, save_pos)
+    vim.notify('No Service.method() call found', vim.log.levels.WARN)
+  end
+end
+
 --- Setup keymaps and user command
 function M.setup(opts)
   opts = opts or {}
   local key = opts.key or '<leader>so'
+  local service_key = opts.service_key or 'gs'
 
   vim.keymap.set('n', key, M.pick, { desc = 'OpenAPI Routes' })
   vim.api.nvim_create_user_command('OpenAPIRoutes', M.pick, { desc = 'Search OpenAPI routes' })
+
+  vim.api.nvim_create_autocmd('FileType', {
+    pattern = 'elixir',
+    callback = function()
+      vim.keymap.set('n', service_key, goto_service_method, { buffer = true, desc = 'Go to Service method definition' })
+    end,
+  })
 end
 
 return M
