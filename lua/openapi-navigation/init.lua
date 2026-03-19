@@ -243,7 +243,6 @@ local function goto_service_method()
     func_end = vim.api.nvim_buf_line_count(0)
   end
 
-  vim.api.nvim_win_set_cursor(0, { func_start, 0 })
   local found = vim.fn.search([[\w\+Service\.\zs\w\+\ze(]], 'W', func_end)
 
   if found > 0 then
